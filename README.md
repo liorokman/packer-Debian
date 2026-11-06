@@ -1,6 +1,6 @@
 # packer-kubernetes-debian
 
-packer-kubernetes-debian is a set of configuration files used to build an automated Debian 12 virtual machine images using [Packer](https://www.packer.io/).
+packer-kubernetes-debian is a set of configuration files used to build an automated Debian 13 (trixie) virtual machine images using [Packer](https://www.packer.io/).
 
 This repository was forked from https://github.com/eaksel/packer-Debian11 and heavily modified:
 1. Uses Debian cloud images instead of an installation iso file
@@ -29,6 +29,8 @@ packer build debian.pkr.hcl
 By default the vm is based on daily cloud images from Debian. The latest daily image is configured. This can be changed in the variables section in `debian.pkr.hcl`.
 
 The Kubernetes version installed for `kubectl`, `kubeadm`, and `kubelet` is also configurable in the variable section in `debian.pkr.hcl`.
+
+The apt signing key for the Kubernetes package repository is specific to each Kubernetes minor version and is rotated periodically. It is downloaded from `pkgs.k8s.io` on every build, so the build machine needs internet access and no key needs to be maintained in this repository.
 
 
 ## Default credentials

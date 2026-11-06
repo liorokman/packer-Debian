@@ -6,7 +6,7 @@ variable "kubernetes_major" {
 
 variable "kubernetes_minor" {
    type = string
-   default = "28"
+   default = "37"
 }
 
 variable "boot_wait" {
@@ -26,17 +26,24 @@ variable "headless" {
 
 variable "image_name" {
   type   = string
-  default = "debian-12-genericcloud-amd64-daily.qcow2"
+  default = "debian-13-genericcloud-amd64-daily.qcow2"
 }
 
 variable "iso_base_url" {
   type    = string
-  default = "https://cdimage.debian.org/cdimage/cloud/bookworm/daily/latest"
+  default = "https://cdimage.debian.org/cdimage/cloud/trixie/daily/latest"
 }
 
 variable "numvcpus" {
   type    = string
   default = "1"
+}
+
+# The Kubernetes package repositories are signed with a key that is specific to each
+# minor version, and that key is rotated periodically. Fetch it on every build instead
+# of embedding a copy that would eventually expire.
+data "http" "kubernetes_key" {
+  url = "https://pkgs.k8s.io/core:/stable:/v${var.kubernetes_major}.${var.kubernetes_minor}/deb/Release.key"
 }
 
 source "qemu" "debian" {
@@ -49,7 +56,7 @@ source "qemu" "debian" {
   format           = "qcow2"
   headless         = "${var.headless}"
   http_content     = {
-     "/cloud-init/user-data" = templatefile("${path.root}/http/cloud-init/user-data", { kubernetes_major = "${var.kubernetes_major}", kubernetes_minor = "${var.kubernetes_minor}" } )
+     "/cloud-init/user-data" = templatefile("${path.root}/http/cloud-init/user-data", { kubernetes_major = "${var.kubernetes_major}", kubernetes_minor = "${var.kubernetes_minor}", kubernetes_key_b64 = base64encode(data.http.kubernetes_key.body) } )
      "/cloud-init/meta-data" = file("http/cloud-init/meta-data")
   }
   iso_checksum     = "file:${var.iso_base_url}/SHA512SUMS"
