@@ -48,7 +48,7 @@ Create a template VM that can be cloned to create actual VMs.
                       -net0 model=virtio,bridge=vmbr0 \
                       -scsihw virtio-scsi-single \
                       -ostype l26 -serial0 socket \
-                      -rng0 source=/dev/hwrng
+                      -rng0 source=/dev/urandom
    ```
 1. Copy to built image (`$IMAGE`) to one of the Proxmox cluster nodes
 1. Import the image into Proxmox and assign it as a disk to the target VM
